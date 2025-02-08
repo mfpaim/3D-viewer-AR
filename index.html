@@ -3,77 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Viewer & Chatbot</title>
+    <title>Educational 3D Viewer & Chatbot</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="flex flex-col h-screen bg-gray-100">
-
+<body class="flex flex-col h-screen bg-gray-50">
     <!-- Header -->
-    <header class="bg-blue-600 text-white p-4 text-center text-xl">
-        3D Viewer & Chatbot
+    <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-cube text-2xl"></i>
+                <h1 class="text-2xl font-bold">Educational 3D Viewer</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="helpBtn" class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                    <i class="fas fa-question-circle mr-2"></i>Help
+                </button>
+            </div>
+        </div>
     </header>
 
     <!-- Main Layout -->
-    <div class="flex flex-1 flex-col md:flex-row">
-
+    <div class="flex flex-1 flex-col md:flex-row overflow-hidden">
         <!-- 3D Viewer Section -->
-        <div id="viewer-container" class="flex-1 bg-white p-4 border-r">
-            <button id="toggleViewer" class="bg-blue-500 text-white px-4 py-2 rounded mb-2">
-                Toggle 3D Viewer
-            </button>
-            <div id="viewer" class="w-full h-96 bg-gray-200"></div>
+        <div id="viewer-container" class="flex-1 bg-white p-6 border-r relative">
+            <div class="bg-white rounded-lg shadow-lg p-4 mb-4">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex space-x-2">
+                        <button id="toggleViewer" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-eye mr-2"></i>Toggle View
+                        </button>
+                        <button id="resetView" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-sync-alt mr-2"></i>Reset
+                        </button>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="zoomIn" class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button id="zoomOut" class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="viewer" class="w-full h-[60vh] bg-gray-50 rounded-lg shadow-inner relative">
+                    <div id="loading" class="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-90">
+                        <div class="text-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+                            <p class="text-gray-600">Loading 3D Model...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Chatbot Section -->
-        <div class="flex-1 bg-gray-50 p-4">
-            <iframe src="https://susan.polenta.chat/space-tutor-g336m6g" style="border: none; width: 100%; height: 600px" frameborder="0" class="w-full h-full border"></iframe>
+        <div class="flex-1 bg-gray-50 p-6">
+            <div class="bg-white rounded-lg shadow-lg h-full">
+                <div class="p-4 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800">Interactive Tutor</h2>
+                </div>
+                <iframe 
+                    src="https://susan.polenta.chat/space-tutor-g336m6g" 
+                    class="w-full h-[calc(100%-4rem)] rounded-b-lg"
+                    frameborder="0">
+                </iframe>
+            </div>
         </div>
-        
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold">How to Use the 3D Viewer</h3>
+                    <button id="closeHelp" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex items-start space-x-3">
+                    <i class="fas fa-mouse text-blue-500 mt-1"></i>
+                    <div>
+                        <h4 class="font-semibold">Mouse Controls</h4>
+                        <p class="text-gray-600">Left click and drag to rotate the model. Right click and drag to pan. Scroll to zoom.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <i class="fas fa-hand-pointer text-blue-500 mt-1"></i>
+                    <div>
+                        <h4 class="font-semibold">Touch Controls</h4>
+                        <p class="text-gray-600">One finger to rotate, two fingers to zoom and pan.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <i class="fas fa-tools text-blue-500 mt-1"></i>
+                    <div>
+                        <h4 class="font-semibold">Tools</h4>
+                        <p class="text-gray-600">Use the buttons above the viewer to toggle visibility, reset view, and adjust zoom.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
         import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.min.js';
         import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three/examples/jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three/examples/jsm/controls/OrbitControls.js';
+
+        // UI Controls
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const closeHelp = document.getElementById('closeHelp');
+        const loading = document.getElementById('loading');
+        
+        helpBtn.addEventListener('click', () => helpModal.classList.remove('hidden'));
+        closeHelp.addEventListener('click', () => helpModal.classList.add('hidden'));
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) helpModal.classList.add('hidden');
+        });
 
         let viewerVisible = true;
         const toggleButton = document.getElementById('toggleViewer');
         const viewerDiv = document.getElementById('viewer');
+        const resetViewBtn = document.getElementById('resetView');
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
 
         toggleButton.addEventListener('click', () => {
             viewerVisible = !viewerVisible;
             viewerDiv.style.visibility = viewerVisible ? 'visible' : 'hidden';
+            toggleButton.innerHTML = viewerVisible ? 
+                '<i class="fas fa-eye mr-2"></i>Toggle View' : 
+                '<i class="fas fa-eye-slash mr-2"></i>Toggle View';
         });
 
         // Setup Three.js Scene
         const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf9fafb);
+        
         const camera = new THREE.PerspectiveCamera(75, viewerDiv.clientWidth / viewerDiv.clientHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(viewerDiv.clientWidth, viewerDiv.clientHeight);
+        renderer.shadowMap.enabled = true;
         viewerDiv.appendChild(renderer.domElement);
 
-        const loader = new GLTFLoader();
-        loader.load('https://pub-3042a326a81a43cc870da55487a4c09e.r2.dev/red_betta_fish.glb', function(gltf) {
-            scene.add(gltf.scene);
-            camera.position.z = 5;
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
 
-            function animate() {
-                requestAnimationFrame(animate);
-                gltf.scene.rotation.y += 0.01;  // Rotate for a better effect
-                renderer.render(scene, camera);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 5, 5);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        let model;
+        const loader = new GLTFLoader();
+        loader.load('https://pub-3042a326a81a43cc870da55487a4c09e.r2.dev/red_betta_fish.glb', 
+            function(gltf) {
+                model = gltf.scene;
+                scene.add(model);
+                
+                // Center and scale model
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 3 / maxDim;
+                model.scale.setScalar(scale);
+                model.position.sub(center.multiplyScalar(scale));
+                
+                camera.position.z = 5;
+                controls.update();
+                
+                loading.style.display = 'none';
+                
+                animate();
+            },
+            undefined,
+            function(error) {
+                console.error("GLTF Load Error:", error);
+                loading.innerHTML = '<p class="text-red-500">Error loading model</p>';
             }
-            animate();
-        }, undefined, function(error) {
-            console.error("GLTF Load Error:", error);
+        );
+
+        // Controls functionality
+        resetViewBtn.addEventListener('click', () => {
+            camera.position.set(0, 0, 5);
+            controls.reset();
         });
+
+        zoomInBtn.addEventListener('click', () => {
+            camera.position.multiplyScalar(0.9);
+        });
+
+        zoomOutBtn.addEventListener('click', () => {
+            camera.position.multiplyScalar(1.1);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
 
         // Handle Window Resize
-        window.addEventListener("resize", () => {
-            renderer.setSize(viewerDiv.clientWidth, viewerDiv.clientHeight);
+        function onWindowResize() {
             camera.aspect = viewerDiv.clientWidth / viewerDiv.clientHeight;
             camera.updateProjectionMatrix();
-        });
-    </script>
+            renderer.setSize(viewerDiv.clientWidth, viewerDiv.clientHeight);
+        }
 
+        window.addEventListener('resize', onWindowResize);
+    </script>
 </body>
 </html>
