@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Viewer & Chatbot</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@react-three/drei"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@react-three/fiber"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="flex flex-col h-screen bg-gray-100">
@@ -35,33 +32,46 @@
         
     </div>
 
-    <script>
+    <script type="module">
+        import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.min.js';
+        import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three/examples/jsm/loaders/GLTFLoader.js';
+
         let viewerVisible = true;
-        document.getElementById('toggleViewer').addEventListener('click', () => {
+        const toggleButton = document.getElementById('toggleViewer');
+        const viewerDiv = document.getElementById('viewer');
+
+        toggleButton.addEventListener('click', () => {
             viewerVisible = !viewerVisible;
-            document.getElementById('viewer').style.display = viewerVisible ? 'block' : 'none';
+            viewerDiv.style.visibility = viewerVisible ? 'visible' : 'hidden';
         });
 
-        // Load Three.js Scene
+        // Setup Three.js Scene
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 2 / 400, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth / 2, 400);
-        document.getElementById('viewer').appendChild(renderer.domElement);
+        const camera = new THREE.PerspectiveCamera(75, viewerDiv.clientWidth / viewerDiv.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(viewerDiv.clientWidth, viewerDiv.clientHeight);
+        viewerDiv.appendChild(renderer.domElement);
 
-        const loader = new THREE.GLTFLoader();
+        const loader = new GLTFLoader();
         loader.load('https://pub-3042a326a81a43cc870da55487a4c09e.r2.dev/chicken.glb', function(gltf) {
             scene.add(gltf.scene);
             camera.position.z = 5;
+
             function animate() {
                 requestAnimationFrame(animate);
+                gltf.scene.rotation.y += 0.01;  // Rotate for a better effect
                 renderer.render(scene, camera);
             }
             animate();
+        }, undefined, function(error) {
+            console.error("GLTF Load Error:", error);
         });
 
+        // Handle Window Resize
         window.addEventListener("resize", () => {
-            renderer.setSize(window.innerWidth / 2, 400);
+            renderer.setSize(viewerDiv.clientWidth, viewerDiv.clientHeight);
+            camera.aspect = viewerDiv.clientWidth / viewerDiv.clientHeight;
+            camera.updateProjectionMatrix();
         });
     </script>
 
