@@ -5,31 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Viewer & Chatbot</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@google/model-viewer@latest"></script>
-    <style>
-        body { display: flex; flex-direction: column; align-items: center; font-family: Arial, sans-serif; }
-        .container { display: flex; width: 100%; max-width: 1200px; }
-        .viewer, .chatbot { flex: 1; padding: 10px; }
-        .chatbot { border-left: 2px solid #ddd; }
-        .toggle-btn { margin: 10px; padding: 10px; cursor: pointer; background: #007bff; color: white; border: none; }
-        .hidden { display: none; }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@react-three/drei"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@react-three/fiber"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <button class="toggle-btn" onclick="toggleViewer()">Toggle 3D Viewer</button>
-    <div class="container">
-        <div class="viewer" id="viewer">
-            <model-viewer src="https://pub-3042a326a81a43cc870da55487a4c09e.r2.dev/chicken.glb" ar auto-rotate camera-controls></model-viewer>
+<body class="flex flex-col h-screen bg-gray-100">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-4 text-center text-xl">
+        3D Viewer & Chatbot
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex flex-1 flex-col md:flex-row">
+
+        <!-- 3D Viewer Section -->
+        <div id="viewer-container" class="flex-1 bg-white p-4 border-r">
+            <button id="toggleViewer" class="bg-blue-500 text-white px-4 py-2 rounded mb-2">
+                Toggle 3D Viewer
+            </button>
+            <div id="viewer" class="w-full h-96 bg-gray-200"></div>
         </div>
-        <div class="chatbot">
-            <iframe src="https://susan.polenta.chat/space-tutor-g336m6g" style="border: none; width: 100%; height: 600px" frameborder="0"></iframe>
+
+        <!-- Chatbot Section -->
+        <div class="flex-1 bg-gray-50 p-4">
+            <iframe src="https://susan.polenta.chat/space-tutor-g336m6g" style="border: none; width: 100%; height: 600px" frameborder="0" class="w-full h-full border"></iframe>
         </div>
+        
     </div>
 
     <script>
-        function toggleViewer() {
-            document.getElementById("viewer").classList.toggle("hidden");
-        }
+        let viewerVisible = true;
+        document.getElementById('toggleViewer').addEventListener('click', () => {
+            viewerVisible = !viewerVisible;
+            document.getElementById('viewer').style.display = viewerVisible ? 'block' : 'none';
+        });
+
+        // Load Three.js Scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / 2 / 400, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth / 2, 400);
+        document.getElementById('viewer').appendChild(renderer.domElement);
+
+        const loader = new THREE.GLTFLoader();
+        loader.load('https://pub-3042a326a81a43cc870da55487a4c09e.r2.dev/chicken.glb', function(gltf) {
+            scene.add(gltf.scene);
+            camera.position.z = 5;
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+            animate();
+        });
+
+        window.addEventListener("resize", () => {
+            renderer.setSize(window.innerWidth / 2, 400);
+        });
     </script>
+
 </body>
 </html>
